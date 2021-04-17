@@ -5,43 +5,83 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>
+#include "RCC.h"
+#include "GPIOx.h"
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
 
-int main(void)
-{
-	uint32_t volatile *const RCC_clock = (uint32_t*) 0x40023830; // RCC_AHB1ENR Address
-	uint32_t volatile *const GPIO_D_mode = (uint32_t*) 0x40020C00; // GPIO D Mode Register Address
-	uint32_t volatile *const GPIO_D_output_data = (uint32_t*) 0x40020C14; // GPIO D O/P Data Register Address
-	uint32_t const volatile *const GPIO_D_input_data = (uint32_t*) 0x40020C10; // GPIO D i/p Data Register Address
-	uint32_t volatile *const GPIO_D_pull_up_down = (uint32_t*) 0x40020C0C; // GPIO D Pull up/down Resistors
+int main() {
+	RCC_AHB1ENR_t volatile *const clock_ctrl_reg 			= (RCC_AHB1ENR_t*) 	(0x40023800 + 0x30);
+	GPIOx_MODER_t volatile *const gpiod_mode_reg			= (GPIOx_MODER_t*) 	(0x40020C00 + 0x00);
+	GPIOx_ODR_t volatile *const gpiod_output_data_reg		= (GPIOx_ODR_t*) 	(0x40020C00 + 0x14);
+	GPIOx_IDR_t volatile *const gpiod_input_data_reg		= (GPIOx_IDR_t*) 	(0x40020C00 + 0x10);
+	GPIOx_PUPDR volatile *const gpiod_pull_up_down_reg		= (GPIOx_PUPDR*) 	(0x40020C00 + 0x0C);
 
-	// enable clock for GPIO D. Setting 3rd bit
-	*RCC_AHB1 |= (1 << 3);
+	// enable clock for GPIOD
+	clock_ctrl_reg->gpio_d_en = 1;
 
-	/* clearing PD0, PD1, PD2, PD3 on i/p mode for Keypad columns
-	 setting PD6, PD7, PD8, PD9 on o/p mode for Keypad rows
-	 This is done on GPIO D Mode register */
+	// considering PD0, PD1, PD2, PD3 as rows, hence o/p mode
+	gpiod_mode_reg->pin_0 = 1;
+	gpiod_mode_reg->pin_1 = 1;
+	gpiod_mode_reg->pin_2 = 1;
+	gpiod_mode_reg->pin_3 = 1;
 
-	// Clearing 1st 8 bits for PD0, PD1, PD2, PD3 on i/p mode
-	*GPIO_D_mode &= ~(255 << 0);
-	// Setting 12 - 19 bits for PD6, PD7, PD8, PD9 on o/p mode
-	*GPIO_D_mode |= (85 << 12);
+	// setting PD0, PD1, PD2, PD3 as High
+	gpiod_output_data_reg->pin_0 = 1;
+	gpiod_output_data_reg->pin_1 = 1;
+	gpiod_output_data_reg->pin_2 = 1;
+	gpiod_output_data_reg->pin_3 = 1;
 
-	// Have pull up registers ready to keep PD0, PD1, PD2, PD3 High. Hence 1st 8 bits (0-7) of pull up registers should be 01010101 = 85
-	*GPIO_D_pull_up_down |= (85 << 0);
+	// considering PD8, PD9, PD10, PD11 as columns, hence i/p mode
+	gpiod_mode_reg->pin_8 = 0;
+	gpiod_mode_reg->pin_9 = 0;
+	gpiod_mode_reg->pin_10 = 0;
+	gpiod_mode_reg->pin_11 = 0;
 
-	// Set PD6, PD7, PD8, PD9 to High as those are rows
-	*GPIO_D_output_data |= (15 << 6);
+	// Enabling pull-up resistors for columns (PD8, PD9, PD10, PD11)
+	gpiod_pull_up_down_reg->pin_8 = 1;
+	gpiod_pull_up_down_reg->pin_9 = 1;
+	gpiod_pull_up_down_reg->pin_10 = 1;
+	gpiod_pull_up_down_reg->pin_11 = 1;
 
-	// Super loop starts
 	while(1) {
-		/* Low PD6 and test PD0, PD1, PD2, PD3
-		 * if any of PD0, PD1, PD2, PD3 is low (initially they're high by pull up reg) consider that button is pressed
-		 */
+		// R1 is lowered/grounder
+		gpiod_output_data_reg->pin_0 = 0;
 
+		//check if any C/colums are low, if so that button is pressed!
+		if(!gpiod_mode_reg->pin_8) {
+			// button 1 pressed!
+			printf("Button 1 pressed\n");
+		}
+
+		if(!gpiod_mode_reg->pin_9) {
+			// button 2 pressed!
+			printf("Button 2 pressed\n");
+		}
+
+		if(!gpiod_mode_reg->pin_10) {
+			// button 3 pressed!
+			printf("Button 3 pressed\n");
+		}
+
+		if(!gpiod_mode_reg->pin_11) {
+			// button A pressed!
+			printf("Button A pressed\n");
+		}
+
+		// bring back to old state
+		gpiod_output_data_reg->pin_0 = 1;
 	}
 }
+
+
+
+
+
+
+
+
