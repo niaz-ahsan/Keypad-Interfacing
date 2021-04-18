@@ -1,6 +1,40 @@
 /**
  ******************************************************************************
  Problem Statement: Detect which key is pressed in keypad
+
+ Objective:
+ A 4x4 Membrane Keypad used
+ If pressed
+ 1 - Blink LD3 (Orange) 1x
+ 2 - Blink LD4 (Green) 1x
+ 3 - Blink LD5 (Red) 1x
+ A - Blink LD6 (Blue) 1x
+
+ 4 - Blink LD3 (Orange) 2x
+ 5 - Blink LD4 (Green) 2x
+ 6 - Blink LD5 (Red) 2x
+ B - Blink LD6 (Blue) 2x
+
+ 7 - Blink LD3 (Orange) 3x
+ 8 - Blink LD4 (Green) 3x
+ 9 - Blink LD5 (Red) 3x
+ C - Blink LD6 (Blue) 3x
+
+ * - Blink LD3 (Orange) 4x
+ 0 - Blink LD4 (Green) 4x
+ # - Blink LD5 (Red) 4x
+ D - Blink LD6 (Blue) 4x
+
+ Mapping:
+ 8x pins of Keypad - MCU mapped
+ R1 -> PD0
+ R2 -> PD1
+ R3 -> PD2
+ R4 -> PD3
+ C1 -> PD8
+ C2 -> PD9
+ C3 -> PD10
+ C4 -> PD11
  ******************************************************************************
  */
 
