@@ -73,75 +73,75 @@ void check_what_to_do(uint8_t row, GPIOx_MODER_t volatile *const gpiod_mode_reg,
 }
 
 int main() {
-	RCC_AHB1ENR_t volatile *const clock_ctrl_reg 			= (RCC_AHB1ENR_t*) 	(0x40023800 + 0x30);
-	GPIOx_MODER_t volatile *const gpiod_mode_reg			= (GPIOx_MODER_t*) 	(0x40020C00 + 0x00);
-	GPIOx_ODR_t volatile *const gpiod_output_data_reg		= (GPIOx_ODR_t*) 	(0x40020C00 + 0x14);
-	GPIOx_IDR_t volatile *const gpiod_input_data_reg		= (GPIOx_IDR_t*) 	(0x40020C00 + 0x10);
-	GPIOx_PUPDR volatile *const gpiod_pull_up_down_reg		= (GPIOx_PUPDR*) 	(0x40020C00 + 0x0C);
+	RCC_AHB1ENR_t volatile *const clock_ctrl_reg 			= RCCAHB1ENR_REG_ADDR;
+	GPIOx_MODER_t volatile *const gpiod_mode_reg			= GPIOD_MODE_REG_ADDR;
+	GPIOx_ODR_t volatile *const gpiod_output_data_reg		= GPIOD_OUT_DATA_REG_ADDR;
+	GPIOx_IDR_t volatile *const gpiod_input_data_reg		= GPIOD_IN_DATA_REG_ADDR;
+	GPIOx_PUPDR volatile *const gpiod_pull_up_down_reg		= GPIOD_PUPDR_REG_ADDR;
 
 	// enable clock for GPIOD
-	clock_ctrl_reg->gpio_d_en = 1;
+	clock_ctrl_reg->gpio_d_en = ENABLE;
 
 	// considering PD0, PD1, PD2, PD3 as rows, hence o/p mode
-	gpiod_mode_reg->pin_0 = 1;
-	gpiod_mode_reg->pin_1 = 1;
-	gpiod_mode_reg->pin_2 = 1;
-	gpiod_mode_reg->pin_3 = 1;
+	gpiod_mode_reg->pin_0 = ENABLE;
+	gpiod_mode_reg->pin_1 = ENABLE;
+	gpiod_mode_reg->pin_2 = ENABLE;
+	gpiod_mode_reg->pin_3 = ENABLE;
 
 	// setting PD0, PD1, PD2, PD3 as High
-	gpiod_output_data_reg->pin_0 = 1;
-	gpiod_output_data_reg->pin_1 = 1;
-	gpiod_output_data_reg->pin_2 = 1;
-	gpiod_output_data_reg->pin_3 = 1;
+	gpiod_output_data_reg->pin_0 = ENABLE;
+	gpiod_output_data_reg->pin_1 = ENABLE;
+	gpiod_output_data_reg->pin_2 = ENABLE;
+	gpiod_output_data_reg->pin_3 = ENABLE;
 
 	// considering PD8, PD9, PD10, PD11 as columns, hence i/p mode
-	gpiod_mode_reg->pin_8 = 0;
-	gpiod_mode_reg->pin_9 = 0;
-	gpiod_mode_reg->pin_10 = 0;
-	gpiod_mode_reg->pin_11 = 0;
+	gpiod_mode_reg->pin_8 = DISABLE;
+	gpiod_mode_reg->pin_9 = DISABLE;
+	gpiod_mode_reg->pin_10 = DISABLE;
+	gpiod_mode_reg->pin_11 = DISABLE;
 
 	// Enabling pull-up resistors for columns (PD8, PD9, PD10, PD11)
-	gpiod_pull_up_down_reg->pin_8 = 1;
-	gpiod_pull_up_down_reg->pin_9 = 1;
-	gpiod_pull_up_down_reg->pin_10 = 1;
-	gpiod_pull_up_down_reg->pin_11 = 1;
+	gpiod_pull_up_down_reg->pin_8 = ENABLE;
+	gpiod_pull_up_down_reg->pin_9 = ENABLE;
+	gpiod_pull_up_down_reg->pin_10 = ENABLE;
+	gpiod_pull_up_down_reg->pin_11 = ENABLE;
 
 	while(1) {
 		// R1 is lowered/grounder
-		gpiod_output_data_reg->pin_0 = 0;
+		gpiod_output_data_reg->pin_0 = DISABLE;
 
 		//check if any Cx/colums are low, if so that button is pressed!
-		check_what_to_do(1, gpiod_mode_reg, gpiod_output_data_reg, gpiod_input_data_reg);
+		check_what_to_do(KEYPAD_ROW_1, gpiod_mode_reg, gpiod_output_data_reg, gpiod_input_data_reg);
 
 		// R1 bring back to old state
-		gpiod_output_data_reg->pin_0 = 1;
+		gpiod_output_data_reg->pin_0 = ENABLE;
 
 		// R2 is lowered/grounder
-		gpiod_output_data_reg->pin_1 = 0;
+		gpiod_output_data_reg->pin_1 = DISABLE;
 
 		//check if any Cx/colums are low, if so that button is pressed!
-		check_what_to_do(2, gpiod_mode_reg, gpiod_output_data_reg, gpiod_input_data_reg);
+		check_what_to_do(KEYPAD_ROW_2, gpiod_mode_reg, gpiod_output_data_reg, gpiod_input_data_reg);
 
 		// R2 bring back to old state
-		gpiod_output_data_reg->pin_1 = 1;
+		gpiod_output_data_reg->pin_1 = ENABLE;
 
 		// R3 is lowered/grounder
-		gpiod_output_data_reg->pin_2 = 0;
+		gpiod_output_data_reg->pin_2 = DISABLE;
 
 		//check if any Cx/colums are low, if so that button is pressed!
-		check_what_to_do(3, gpiod_mode_reg, gpiod_output_data_reg, gpiod_input_data_reg);
+		check_what_to_do(KEYPAD_ROW_3, gpiod_mode_reg, gpiod_output_data_reg, gpiod_input_data_reg);
 
 		// R3 bring back to old state
-		gpiod_output_data_reg->pin_2 = 1;
+		gpiod_output_data_reg->pin_2 = ENABLE;
 
 		// R4 is lowered/grounder
-		gpiod_output_data_reg->pin_3 = 0;
+		gpiod_output_data_reg->pin_3 = DISABLE;
 
 		//check if any Cx/colums are low, if so that button is pressed!
-		check_what_to_do(4, gpiod_mode_reg, gpiod_output_data_reg, gpiod_input_data_reg);
+		check_what_to_do(KEYPAD_ROW_4, gpiod_mode_reg, gpiod_output_data_reg, gpiod_input_data_reg);
 
 		// R3 bring back to old state
-		gpiod_output_data_reg->pin_3 = 1;
+		gpiod_output_data_reg->pin_3 = ENABLE;
 
 	}
 }

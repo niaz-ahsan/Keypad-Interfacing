@@ -8,6 +8,9 @@
 #ifndef RCC_H_
 #define RCC_H_
 
+#define RCCAHB1ENR_REG_ADDR ((RCC_AHB1ENR_t*)(0x40023800 + 0x30))
+
+
 typedef struct {
 	uint32_t gpio_a_en		:1;
 	uint32_t gpio_b_en		:1;
